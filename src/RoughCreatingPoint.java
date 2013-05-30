@@ -1,4 +1,4 @@
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -30,6 +30,7 @@ import org.geotools.map.event.MapLayerListener;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.geotools.swing.JMapFrame;
+import org.geotools.swing.JMapPane;
 import org.geotools.swing.event.MapMouseEvent;
 import org.geotools.swing.tool.CursorTool;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -41,19 +42,19 @@ public class RoughCreatingPoint {
 
 
     SimpleFeatureSource featureSource;
-
-
     private JMapFrame mapFrame;
     //private com.vividsolutions.jts.geom.Point point;
     MapContent map = new MapContent();
     GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
 
-    MemoryFeatureCollection pointCollection;
+    DefaultFeatureCollection pointCollection;
     Layer pointLayer;
 
     SimpleFeatureTypeBuilder pointFeatureTypeBuilder = new SimpleFeatureTypeBuilder();
     SimpleFeatureType pointType = null;
 
+
+    Style pointStyle = SLD.createPointStyle("Circle",Color.RED, Color.RED, 0.5f, 5);
 
 
     public RoughCreatingPoint(){
@@ -83,9 +84,16 @@ public class RoughCreatingPoint {
         Style style = SLD.createPolygonStyle(Color.BLUE, Color.CYAN, 0.5f, null, null);
         Layer layer = new FeatureLayer(featureSource, style);
         map.addLayer(layer);
+
+
         mapFrame = new JMapFrame(map);
+
         mapFrame.enableToolBar(true);
         mapFrame.enableStatusBar(true);
+
+        //mapFrame.enableLayerTable(true);
+
+
         JToolBar toolBar = mapFrame.getToolBar();
         JButton btn = new JButton("Create");
         toolBar.addSeparator();
@@ -99,17 +107,17 @@ public class RoughCreatingPoint {
             public void actionPerformed(ActionEvent e) {
                 mapFrame.getMapPane().setCursorTool(
                         new CursorTool() {
-
                             @Override
                             public void onMouseClicked(MapMouseEvent ev) {
                                 createFeatures(ev);
+
                             }
                         });
             }
         });
 
 
-        mapFrame.setSize(600, 600);
+        mapFrame.setSize(700, 700);
         mapFrame.setVisible(true);
     }
 
@@ -119,10 +127,14 @@ public class RoughCreatingPoint {
      * @param ev - has a method getWorldPos()
      */
     void createFeatures(MapMouseEvent ev) {
-
         double[] xy = ev.getWorldPos().getCoordinate();
         Point point = geometryFactory.createPoint( new Coordinate( xy[0], xy[1] ));
         pointCollection.add(SimpleFeatureBuilder.build(pointType, new Object[]{point}, null));
+
+        map.removeLayer(pointLayer);
+        pointLayer = new FeatureLayer(pointCollection, pointStyle);
+        map.addLayer(pointLayer);
+
         System.out.println(MessageFormat.format("Created Point: {0}", point));
     }
 
@@ -132,20 +144,17 @@ public class RoughCreatingPoint {
      */
     private void createPointLayer(){
         if (pointType == null){
-
-
             pointFeatureTypeBuilder.setName("Point");
             pointFeatureTypeBuilder.setCRS(featureSource.getSchema().getCoordinateReferenceSystem());
             pointFeatureTypeBuilder.add("geom", Point.class);
             pointType = pointFeatureTypeBuilder.buildFeatureType();
-
-            pointCollection = new MemoryFeatureCollection(pointType);
+            pointCollection = new DefaultFeatureCollection(null, pointType);
         }
 
-        Style style = SLD.createPointStyle("Circle",Color.RED, Color.RED, 0.5f, 5);
-        pointLayer = new FeatureLayer(pointCollection, style);
 
+        pointLayer = new FeatureLayer(pointCollection, pointStyle);
         map.addLayer(pointLayer);
+        mapFrame.getMapPane();
     }
 
 
