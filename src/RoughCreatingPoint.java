@@ -26,6 +26,7 @@ import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.map.event.MapLayerEvent;
+import org.geotools.map.event.MapLayerListEvent;
 import org.geotools.map.event.MapLayerListener;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
@@ -52,9 +53,11 @@ public class RoughCreatingPoint {
 
     SimpleFeatureTypeBuilder pointFeatureTypeBuilder = new SimpleFeatureTypeBuilder();
     SimpleFeatureType pointType = null;
+    private static float POINT_SIZE = 10;
+
+    Style pointStyle = SLD.createPointStyle("Circle",Color.RED, Color.RED, 0.5f, POINT_SIZE);
 
 
-    Style pointStyle = SLD.createPointStyle("Circle",Color.RED, Color.RED, 0.5f, 5);
 
 
     public RoughCreatingPoint(){
@@ -131,10 +134,12 @@ public class RoughCreatingPoint {
         Point point = geometryFactory.createPoint( new Coordinate( xy[0], xy[1] ));
         pointCollection.add(SimpleFeatureBuilder.build(pointType, new Object[]{point}, null));
 
-        map.removeLayer(pointLayer);
-        pointLayer = new FeatureLayer(pointCollection, pointStyle);
-        map.addLayer(pointLayer);
+        //create map layer event
+        MapLayerEvent mple = new MapLayerEvent(pointLayer, MapLayerEvent.DATA_CHANGED);
+        //create maplayer list event
+        MapLayerListEvent mplle = new MapLayerListEvent(map, pointLayer, map.layers().indexOf(pointLayer), mple);
 
+        mapFrame.getMapPane().layerChanged(mplle);
         System.out.println(MessageFormat.format("Created Point: {0}", point));
     }
 
