@@ -4,8 +4,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 
-import javax.swing.JButton;
-import javax.swing.JToolBar;
+import javax.swing.*;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
@@ -69,13 +68,24 @@ public class RoughCreatingPoint {
 
 
     public static void main(String[] args) throws Exception {
-        RoughCreatingPoint me = new RoughCreatingPoint();
 
-
+        final RoughCreatingPoint me = new RoughCreatingPoint();
         //Change back to the path on your system
-        File file = new File("data/MCR Boundary/MCR_BOUNDARY.shp");
+        final File file = new File("data/MCR Boundary/MCR_BOUNDARY.shp");
 
-        me.displayShapefile(file);
+        if (SwingUtilities.isEventDispatchThread()){
+            me.displayShapefile(file);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    try {
+                        me.displayShapefile(file);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
 
     }
     public void displayShapefile(File file) throws Exception {
