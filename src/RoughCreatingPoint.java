@@ -45,7 +45,7 @@ public class RoughCreatingPoint {
     private JMapFrame mapFrame;
     //private com.vividsolutions.jts.geom.Point point;
     MapContent map = new MapContent();
-    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory( null );
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
 
     DefaultFeatureCollection pointCollection;
     Layer pointLayer;
@@ -54,17 +54,13 @@ public class RoughCreatingPoint {
     SimpleFeatureType pointType = null;
     private static float POINT_SIZE = 10;
 
-    Style pointStyle = SLD.createPointStyle("Circle",Color.RED, Color.RED, 0.5f, POINT_SIZE);
+    Style pointStyle = SLD.createPointStyle("Circle", Color.RED, Color.RED, 0.5f, POINT_SIZE);
 
 
-
-
-    public RoughCreatingPoint(){
-
+    public RoughCreatingPoint() {
 
 
     }
-
 
 
     public static void main(String[] args) throws Exception {
@@ -73,21 +69,18 @@ public class RoughCreatingPoint {
         //Change back to the path on your system
         final File file = new File("data/MCR Boundary/MCR_BOUNDARY.shp");
 
-        if (SwingUtilities.isEventDispatchThread()){
-            me.displayShapefile(file);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    try {
-                        me.displayShapefile(file);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    me.displayShapefile(file);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
-        }
+            }
+        });
 
     }
+
     public void displayShapefile(File file) throws Exception {
         FileDataStore store = FileDataStoreFinder.getDataStore(file);
         featureSource = store.getFeatureSource();
@@ -136,12 +129,11 @@ public class RoughCreatingPoint {
 
 
     /**
-     *
      * @param ev - has a method getWorldPos()
      */
     void createFeatures(MapMouseEvent ev) {
         double[] xy = ev.getWorldPos().getCoordinate();
-        Point point = geometryFactory.createPoint( new Coordinate( xy[0], xy[1] ));
+        Point point = geometryFactory.createPoint(new Coordinate(xy[0], xy[1]));
         pointCollection.add(SimpleFeatureBuilder.build(pointType, new Object[]{point}, null));
 
         //create map layer event
@@ -157,8 +149,8 @@ public class RoughCreatingPoint {
     /**
      *
      */
-    private void createPointLayer(){
-        if (pointType == null){
+    private void createPointLayer() {
+        if (pointType == null) {
             pointFeatureTypeBuilder.setName("Point");
             pointFeatureTypeBuilder.setCRS(featureSource.getSchema().getCoordinateReferenceSystem());
             pointFeatureTypeBuilder.add("geom", Point.class);
@@ -173,7 +165,7 @@ public class RoughCreatingPoint {
     }
 
 
-    private Feature createFeatureForPoint(Point point){
+    private Feature createFeatureForPoint(Point point) {
         return null;
     }
 
